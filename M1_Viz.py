@@ -22,20 +22,13 @@ def agent_portrayal(agent):
         portrayal["Color"] = "white"
         portrayal["Layer"] = 0
     
-
-
-
     return portrayal
     
-ancho = 10
-alto = 10
+ancho = 30
+alto = 30
 grid = CanvasGrid(agent_portrayal, ancho, alto, 750, 750)
 server = ModularServer(LimpiezaModelo, [grid], "Modelo Limpieza", 
-                       {"width": ancho, "height": alto, "N":30, "percentage": 50, "t": 10})
+                       {"width": ancho, "height": alto, "N":90, "percentage": 10, "t": 500})
 server.port = 8521
 server.launch()
 
-# steps = server.model.datacollector.get_model_vars_dataframe()
-
-# g = sns.lineplot(data = steps)
-# plt.show()

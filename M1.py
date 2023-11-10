@@ -1,5 +1,5 @@
 from typing import Any
-from mesa import Agent, Model, DataCollector
+from mesa import Agent, Model
 
 
 # Debido a que necesitamos un solo agente por celda elegimos `SingleGrid` que fuerza un solo objeto por celda.
@@ -13,7 +13,6 @@ import numpy as np
 def results(model):
     agent_steps = [agent.steps for agent in model.schedule.agents]
     x = (agent_steps)
-    N = model.num_agents
     return x
 
 class agenteLimpieza(Agent):
@@ -53,7 +52,7 @@ class LimpiezaModelo(Model):
         self.grid = MultiGrid(width, height, False)
         self.schedule = SimultaneousActivation(self)
         self.maxT = t
-        #self.dirty = []
+        self.count = 0
         self.clean = (width * height) - self.quantityDirty
         self.running = True #Para la visualizacion usando navegador
 
@@ -66,7 +65,6 @@ class LimpiezaModelo(Model):
                 y = self.random.randrange(self.grid.height)
                 newPos = (x,y)
             m = agenteLimpieza(i, self)
-            #self.dirty.append(m)
             m.position = newPos
             m.state = 0
             self.grid.place_agent(m, newPos)
@@ -77,20 +75,19 @@ class LimpiezaModelo(Model):
             a.state = 1
             self.grid.place_agent(a, (0, 0))
             self.schedule.add(a)
-
-        self.datacollector = DataCollector(
-            model_reporters={ "Steps": results}, agent_reporters={"Steps": "steps"}
-        )
-
-
+        
     def step(self):
-        print()
-        if self.schedule.steps < self.maxT and (self.clean != self.total):
-            self.datacollector.collect(self)
+        if self.count < self.maxT and (self.clean != self.total):
             self.schedule.step()
+            self.count += 1
         else:
             self.running = False
-            print(self.schedule)
-            print((self.clean * 100)/ self.total)
-            print(results(self))
+            print ("Cuenta con " + str(self.num_agents) 
+                   + " robots limpiadores, termino con un tiempo de " + str(self.count) 
+                   + " el porcentaje de celdas fue de " + str(round(((self.clean * 100)/ self.total), 2)) 
+                   + "% y los movimiento realizados por cada agente fueron " + str(results(self)) 
+                   + " teniendo un total de " + str(sum(results(self))) + " movimientos en total" )
+            # print(self.count)
+            # print((self.clean * 100)/ self.total)
+            # print(results(self))
             
